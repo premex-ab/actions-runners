@@ -12,18 +12,8 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
 # Add the 'runner' user to the 'kvm' and 'libvirt' groups to enable KVM access
 RUN usermod -aG kvm runner && usermod -aG libvirt runner
 
-# Switch back to the default non-root user for the rest of the operations (if needed)
+# Ensure /dev/kvm has the correct group ownership and permissions
+RUN chgrp kvm /dev/kvm && chmod 660 /dev/kvm
+
+# Switch back to the non-root runner user
 USER runner
-
-# Example: Install additional dependencies (optional)
-# RUN apt-get update && apt-get install -y curl git jq
-
-# Example: Copy your custom scripts or configuration
-# COPY ./my-custom-script.sh /usr/local/bin/my-custom-script.sh
-# RUN chmod +x /usr/local/bin/my-custom-script.sh
-
-# Set environment variables or configurations (optional)
-# ENV MY_CUSTOM_ENV_VAR=my_value
-
-# Define the entry point, which can be customized based on your needs
-# ENTRYPOINT ["/entrypoint.sh"]
