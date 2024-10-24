@@ -1,7 +1,7 @@
 # Use the latest GitHub Actions runner image as the base image
 FROM ghcr.io/actions/actions-runner:latest
 
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
 
 RUN git lfs install
 
