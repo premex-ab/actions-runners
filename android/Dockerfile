@@ -10,7 +10,7 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
     git lfs install
 
 # Add the 'runner' user to the 'kvm' and 'libvirt' groups to enable KVM access
-RUN usermod -aG kvm runner && usermod -aG libvirt docker
+RUN usermod -aG kvm runner && usermod -aG libvirt runner
 
 # Switch back to the default non-root user for the rest of the operations (if needed)
 USER runner
