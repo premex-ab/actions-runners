@@ -4,9 +4,9 @@ FROM ghcr.io/actions/actions-runner:latest
 # Switch to root to install dependencies
 USER root
 
-# Install Git LFS (Git Large File Storage) and QEMU for KVM
+# Install Git LFS, QEMU for KVM, xz-utils, and kvm-ok (cpu-checker)
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
-    apt-get install -y git-lfs qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils && \
+    apt-get install -y git-lfs qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils xz-utils cpu-checker && \
     git lfs install
 
 # Add the 'runner' user to the 'kvm' and 'libvirt' groups to enable KVM access
