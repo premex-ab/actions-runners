@@ -23,6 +23,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build and push Docker image
+        working-directory: android
         run: |
           docker build -t ghcr.io/premex-ab/action-runners:latest .
           docker push ghcr.io/premex-ab/action-runners:latest
