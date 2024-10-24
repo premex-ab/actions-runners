@@ -1,9 +1,9 @@
 # Use the latest GitHub Actions runner image as the base image
 FROM ghcr.io/actions/actions-runner:latest
 
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
-
-RUN git lfs install
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
+    apt-get install -y git-lfs && \
+    git lfs install
 
 # Example: Install additional dependencies (optional)
 # RUN apt-get update && apt-get install -y curl git jq
