@@ -19,7 +19,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 
 # Update package lists and install dependencies
 RUN apt-get update && \
-    apt-get install -y wget git-lfs bridge-utils xz-utils cpu-checker unzip && \
+    apt-get install -y wget git-lfs bridge-utils xz-utils cpu-checker unzip libgl1 libxcb1 libpulse0 libnss3 libx11-6 && \
     git lfs install
 
 # Download and install Java 21 based on architecture
@@ -52,11 +52,8 @@ ENV PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$P
 
 # Accept Android SDK licenses and install essential packages
 RUN yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses && \
-    sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-33" "build-tools;33.0.0" && \
-    sdkmanager --sdk_root=$ANDROID_HOME "build-tools;34.0.0" "platforms;android-34" "platforms;android-35" && \
-    sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis;x86"
-
-
+    sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "emulator" "build-tools;34.0.0" "platforms;android-34" "platforms;android-35" && \
+    sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis;x86" "system-images;android-30;google_apis_playstore;x86_64"
 
 # Switch back to the non-root runner user
-#USER runner
+USER runner
