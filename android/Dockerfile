@@ -53,8 +53,9 @@ ENV PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$P
 # Accept Android SDK licenses and install essential packages
 RUN yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses && \
     sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-33" "build-tools;33.0.0" && \
-    sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-34" "platforms;android-35" && \
+    sdkmanager --sdk_root=$ANDROID_HOME "build-tools;34.0.0" "platforms;android-34" "platforms;android-35" && \
     sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis;x86"
+
 
 
 # Switch back to the non-root runner user
