@@ -72,8 +72,6 @@ RUN chown -R runner:runner /home/runner/android-sdk
 RUN groupadd -f kvm && \
     usermod -aG kvm runner
 
-USER runner
-
 # Set the entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
