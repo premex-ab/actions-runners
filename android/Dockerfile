@@ -59,6 +59,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis;x86" "system-images;android-30;google_apis_playstore;x86_64"; \
     fi
 
+ENV TARGETARCH=$TARGETARCH
 
 # Switch back to the non-root runner user
 USER runner
