@@ -54,8 +54,8 @@ RUN mkdir -p $ANDROID_HOME && \
     mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
 # Accept Android SDK licenses and install essential packages
-#RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
-#    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "tools" "platform-tools" # "build-tools;34.0.0" "platforms;android-34" "platforms;android-35"
+RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
+    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" # "build-tools;34.0.0" "platforms;android-34" "platforms;android-35"
 
 # Install emulator only on amd64 architecture
 # RUN if [ "$TARGETARCH" = "amd64" ]; then \
