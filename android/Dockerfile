@@ -61,16 +61,16 @@ RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         # Install emulator
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "emulator" && \
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64" && \
-        \
-        # Switch to root to set KVM permissions
-        sudo groupadd -r kvm && sudo usermod -aG kvm runner && \
-        sudo chown root:kvm /dev/kvm && sudo chmod 660 /dev/kvm; \
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64" \
     fi
 
 # Switch back to the root user to finalize configurations
 USER root
 RUN chown -R runner:runner /home/runner/android-sdk
 
-# Switch back to the runner user
-USER runner
+
+# Set the entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
