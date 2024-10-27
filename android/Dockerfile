@@ -46,14 +46,23 @@ RUN mkdir -p /usr/lib/android-sdk && \
     rm /usr/lib/android-sdk/commandlinetools.zip && \
     mv /usr/lib/android-sdk/cmdline-tools/cmdline-tools /usr/lib/android-sdk/cmdline-tools/latest
 
-# Set ANDROID_HOME and add SDK tools to PATH
+# Set ANDROID_HOME and ANDROID_SDK_ROOT
 ENV ANDROID_HOME=/usr/lib/android-sdk
+ENV ANDROID_SDK_ROOT=$ANDROID_HOME
 ENV PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+
 
 # Accept Android SDK licenses and install essential packages
 RUN yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses && \
     sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "emulator" "build-tools;34.0.0" "platforms;android-34" "platforms;android-35" && \
     sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis;x86" "system-images;android-30;google_apis_playstore;x86_64"
 
+RUN apt-get update && apt-get install -y xvfb
+
+RUN apt-get install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+
 # Switch back to the non-root runner user
-USER runner
+#USER runner
+
+# Start XVFB before any other commands in the container
+ENTRYPOINT ["/bin/bash", "-c", "Xvfb :99 -screen 0 1280x1024x24 & exec \"$@\"", "--"]
