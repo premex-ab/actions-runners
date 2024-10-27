@@ -10,4 +10,4 @@ else
 fi
 
 # Switch to runner user and continue with CMD
-exec su - runner -c "$@"
+exec su - runner -c "/home/runner/run.sh"
