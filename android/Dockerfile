@@ -55,13 +55,18 @@ RUN mkdir -p $ANDROID_HOME && \
 
 # Accept Android SDK licenses and install essential packages
 RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
-    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" # "build-tools;34.0.0" "platforms;android-34" "platforms;android-35"
+    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools"
 
-# Install emulator only on amd64 architecture
-# RUN if [ "$TARGETARCH" = "amd64" ]; then \
-#     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "emulator" && \
-#     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64"; \
-# fi
+# Install emulator and configure KVM only on amd64 architecture
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        # Install emulator
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "emulator" && \
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64" && \
+        \
+        # Switch to root to set KVM permissions
+        sudo groupadd -r kvm && sudo usermod -aG kvm runner && \
+        sudo chown root:kvm /dev/kvm && sudo chmod 660 /dev/kvm; \
+    fi
 
 # Switch back to the root user to finalize configurations
 USER root
