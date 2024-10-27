@@ -70,13 +70,14 @@ RUN chown -R runner:runner /home/runner/android-sdk
 
 # Ensure the kvm group exists and add runner user to it for permissions
 RUN groupadd -f kvm && \
-    usermod -aG kvm runner \
+    usermod -aG kvm runner
 
 # Ensure that /dev/kvm is available and owned by kvm group on amd64
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         mknod -m 666 /dev/kvm c 10 232 || true && \
         chown root:kvm /dev/kvm || true; \
     fi
+
 
 USER runner
 
