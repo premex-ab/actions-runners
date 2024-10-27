@@ -37,17 +37,22 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
-# Install Android SDK command line tools
-RUN mkdir -p /usr/lib/android-sdk && \
-    wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /usr/lib/android-sdk/commandlinetools.zip && \
-    unzip /usr/lib/android-sdk/commandlinetools.zip -d /usr/lib/android-sdk/cmdline-tools && \
-    rm /usr/lib/android-sdk/commandlinetools.zip && \
-    mv /usr/lib/android-sdk/cmdline-tools/cmdline-tools /usr/lib/android-sdk/cmdline-tools/latest
+# Switch to runner user and set installation paths
+USER runner
 
-# Set ANDROID_HOME and ANDROID_SDK_ROOT
-ENV ANDROID_HOME=/usr/lib/android-sdk
+# Set Android SDK installation paths in runner's home directory
+ENV TARGETARCH=$TARGETARCH
+ENV ANDROID_HOME=/home/runner/android-sdk
 ENV ANDROID_SDK_ROOT=$ANDROID_HOME
 ENV PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+
+# Install Android SDK command line tools
+#  https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+RUN mkdir -p $ANDROID_HOME && \
+    wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O $ANDROID_HOME/commandlinetools.zip && \
+    unzip $ANDROID_HOME/commandlinetools.zip -d $ANDROID_HOME/cmdline-tools && \
+    rm $ANDROID_HOME/commandlinetools.zip && \
+    mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
 # Accept Android SDK licenses and install essential packages
 RUN yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses && \
@@ -59,7 +64,11 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis;x86" "system-images;android-30;google_apis_playstore;x86_64"; \
     fi
 
-ENV TARGETARCH=$TARGETARCH
 
-# Switch back to the non-root runner user
+
+# Switch back to the root user to finalize configurations
+USER root
+RUN chown -R runner:runner /home/runner/android-sdk
+
+# Switch back to the runner user
 USER runner
