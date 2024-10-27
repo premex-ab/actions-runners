@@ -56,13 +56,13 @@ RUN mkdir -p $ANDROID_HOME && \
 
 # Accept Android SDK licenses and install essential packages
 RUN yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses && \
-    sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "build-tools;34.0.0" "platforms;android-34" "platforms;android-35"
+    sdkmanager --sdk_root=$ANDROID_HOME "tools" "platform-tools" # "build-tools;34.0.0" "platforms;android-34" "platforms;android-35"
 
 # Install emulator only on amd64 architecture
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        sdkmanager --sdk_root=$ANDROID_HOME "emulator" && \
-        sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis;x86" "system-images;android-30;google_apis_playstore;x86_64"; \
-    fi
+#RUN if [ "$TARGETARCH" = "amd64" ]; then \
+#        sdkmanager --sdk_root=$ANDROID_HOME "emulator" && \
+#        sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis_playstore;x86_64"; \
+#    fi
 
 
 
