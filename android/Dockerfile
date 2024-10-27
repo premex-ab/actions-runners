@@ -61,8 +61,9 @@ RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         # Install emulator
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "emulator" && \
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64" \
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64"; \
     fi
+
 
 # Switch back to the root user to finalize configurations
 USER root
