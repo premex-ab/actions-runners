@@ -19,7 +19,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 
 # Update package lists and install essential dependencies
 RUN apt-get update && \
-    apt-get install -y wget git-lfs unzip && \
+    apt-get install -y wget git-lfs unzip cpu-checker && \
     git lfs install
 
 # Download and install Amazon Corretto 17 based on architecture
