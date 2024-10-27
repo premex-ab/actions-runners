@@ -62,7 +62,7 @@ RUN apt-get update && apt-get install -y xvfb
 RUN apt-get install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
 
 # Switch back to the non-root runner user
-#USER runner
+USER runner
 
 # Start XVFB before any other commands in the container
 ENTRYPOINT ["/bin/bash", "-c", "Xvfb :99 -screen 0 1280x1024x24 & exec \"$@\"", "--"]
