@@ -47,7 +47,6 @@ ENV ANDROID_SDK_ROOT=$ANDROID_HOME
 ENV PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
 
 # Install Android SDK command line tools
-#  https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
 RUN mkdir -p $ANDROID_HOME && \
     wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O $ANDROID_HOME/commandlinetools.zip && \
     unzip $ANDROID_HOME/commandlinetools.zip -d $ANDROID_HOME/cmdline-tools && \
@@ -55,16 +54,14 @@ RUN mkdir -p $ANDROID_HOME && \
     mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
 # Accept Android SDK licenses and install essential packages
-RUN yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses && \
-    sdkmanager --sdk_root=$ANDROID_HOME "tools" "platform-tools" # "build-tools;34.0.0" "platforms;android-34" "platforms;android-35"
+#RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
+#    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "tools" "platform-tools" # "build-tools;34.0.0" "platforms;android-34" "platforms;android-35"
 
 # Install emulator only on amd64 architecture
-#RUN if [ "$TARGETARCH" = "amd64" ]; then \
-#        sdkmanager --sdk_root=$ANDROID_HOME "emulator" && \
-#        sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis_playstore;x86_64"; \
-#    fi
-
-
+# RUN if [ "$TARGETARCH" = "amd64" ]; then \
+#     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "emulator" && \
+#     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64"; \
+# fi
 
 # Switch back to the root user to finalize configurations
 USER root
