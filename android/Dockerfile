@@ -17,26 +17,26 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     fi && \
     echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu mantic main restricted" > /etc/apt/sources.list.d/ubuntu-amd64.list
 
-# Update package lists and install dependencies
+# Update package lists and install essential dependencies
 RUN apt-get update && \
-    apt-get install -y wget git-lfs bridge-utils xz-utils cpu-checker unzip libgl1 libxcb1 libpulse0 libnss3 libx11-6 && \
+    apt-get install -y wget git-lfs unzip && \
     git lfs install
 
-# Download and install Java 21 based on architecture
+# Download and install Java 17 based on architecture
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        wget https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.tar.gz -O /tmp/openjdk-21.tar.gz; \
+        wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz -O /tmp/openjdk-17.tar.gz; \
     elif [ "$TARGETARCH" = "arm64" ]; then \
-        wget https://download.oracle.com/java/21/latest/jdk-21_linux-aarch64_bin.tar.gz -O /tmp/openjdk-21.tar.gz; \
+        wget https://download.oracle.com/java/17/latest/jdk-17_linux-aarch64_bin.tar.gz -O /tmp/openjdk-17.tar.gz; \
     else \
         echo "Unsupported architecture: $TARGETARCH" && exit 1; \
     fi && \
     mkdir -p /usr/lib/jvm && \
-    tar -xzf /tmp/openjdk-21.tar.gz -C /usr/lib/jvm && \
-    rm /tmp/openjdk-21.tar.gz && \
-    mv /usr/lib/jvm/jdk-21* /usr/lib/jvm/java-21
+    tar -xzf /tmp/openjdk-17.tar.gz -C /usr/lib/jvm && \
+    rm /tmp/openjdk-17.tar.gz && \
+    mv /usr/lib/jvm/jdk-17* /usr/lib/jvm/java-17
 
 # Set JAVA_HOME and add Java to PATH
-ENV JAVA_HOME=/usr/lib/jvm/java-21
+ENV JAVA_HOME=/usr/lib/jvm/java-17
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Install Android SDK command line tools
@@ -51,18 +51,13 @@ ENV ANDROID_HOME=/usr/lib/android-sdk
 ENV ANDROID_SDK_ROOT=$ANDROID_HOME
 ENV PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
 
-
-# Accept Android SDK licenses and install essential packages
+# Accept Android SDK licenses and install platform tools
 RUN yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses && \
-    sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "emulator" "build-tools;34.0.0" "platforms;android-34" "platforms;android-35" && \
-    sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis;x86" "system-images;android-30;google_apis_playstore;x86_64"
+    sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-34" "platforms;android-35"
 
-RUN apt-get update && apt-get install -y xvfb
-
-RUN apt-get install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+# Query and install the latest and second-latest build tools
+RUN LATEST_BUILD_TOOLS=$(sdkmanager --list | grep "build-tools;" | awk -F';' '{print $2}' | sort -Vr | head -n 2) && \
+    for VERSION in $LATEST_BUILD_TOOLS; do sdkmanager --sdk_root=$ANDROID_HOME "build-tools;$VERSION"; done
 
 # Switch back to the non-root runner user
 USER runner
-
-# Start XVFB before any other commands in the container
-ENTRYPOINT ["/bin/bash", "-c", "Xvfb :99 -screen 0 1280x1024x24 & exec \"$@\"", "--"]
