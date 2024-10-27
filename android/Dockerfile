@@ -49,13 +49,16 @@ ENV ANDROID_HOME=/usr/lib/android-sdk
 ENV ANDROID_SDK_ROOT=$ANDROID_HOME
 ENV PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
 
-# Accept Android SDK licenses and install platform tools
+# Accept Android SDK licenses and install essential packages
 RUN yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses && \
-    sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-34" "platforms;android-35"
+    sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "build-tools;34.0.0" "platforms;android-34" "platforms;android-35"
 
-# Query and install the latest and second-latest build tools
-RUN LATEST_BUILD_TOOLS=$(sdkmanager --list | grep "build-tools;" | awk -F';' '{print $2}' | sort -Vr | head -n 2) && \
-    for VERSION in $LATEST_BUILD_TOOLS; do sdkmanager --sdk_root=$ANDROID_HOME "build-tools;$VERSION"; done
+# Install emulator only on amd64 architecture
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        sdkmanager --sdk_root=$ANDROID_HOME "emulator" && \
+        sdkmanager --sdk_root=$ANDROID_HOME "system-images;android-30;google_apis;x86" "system-images;android-30;google_apis_playstore;x86_64"; \
+    fi
+
 
 # Switch back to the non-root runner user
 USER runner
