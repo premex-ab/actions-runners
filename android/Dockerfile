@@ -72,17 +72,9 @@ RUN chown -R runner:runner /home/runner/android-sdk
 RUN groupadd -f kvm && \
     usermod -aG kvm runner
 
-# Ensure that /dev/kvm is available and owned by kvm group on amd64
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        mknod -m 666 /dev/kvm c 10 232 || true && \
-        chown root:kvm /dev/kvm || true; \
-    fi
-
-
 USER runner
 
 # Set the entrypoint
-#COPY entrypoint.sh /entrypoint.sh
-#RUN chmod +x /entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-#ENTRYPOINT ["/entrypoint.sh"]
