@@ -64,14 +64,24 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64"; \
     fi
 
-
 # Switch back to the root user to finalize configurations
 USER root
 RUN chown -R runner:runner /home/runner/android-sdk
 
+# Ensure the kvm group exists and add runner user to it for permissions
+RUN groupadd -f kvm && \
+    usermod -aG kvm runner \
+
+# Ensure that /dev/kvm is available and owned by kvm group on amd64
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        mknod -m 666 /dev/kvm c 10 232 || true && \
+        chown root:kvm /dev/kvm || true; \
+    fi
+
+USER runner
 
 # Set the entrypoint
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+#COPY entrypoint.sh /entrypoint.sh
+#RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+#ENTRYPOINT ["/entrypoint.sh"]
