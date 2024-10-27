@@ -22,21 +22,19 @@ RUN apt-get update && \
     apt-get install -y wget git-lfs unzip && \
     git lfs install
 
-# Download and install Java 17 based on architecture
+# Download and install Amazon Corretto 17 based on architecture
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz -O /tmp/openjdk-17.tar.gz; \
+        wget https://corretto.aws/downloads/latest/amazon-corretto-17-x64-linux-jdk.deb -O /tmp/amazon-corretto-17.deb; \
     elif [ "$TARGETARCH" = "arm64" ]; then \
-        wget https://download.oracle.com/java/17/latest/jdk-17_linux-aarch64_bin.tar.gz -O /tmp/openjdk-17.tar.gz; \
+        wget https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-linux-jdk.deb -O /tmp/amazon-corretto-17.deb; \
     else \
         echo "Unsupported architecture: $TARGETARCH" && exit 1; \
     fi && \
-    mkdir -p /usr/lib/jvm && \
-    tar -xzf /tmp/openjdk-17.tar.gz -C /usr/lib/jvm && \
-    rm /tmp/openjdk-17.tar.gz && \
-    mv /usr/lib/jvm/jdk-17* /usr/lib/jvm/java-17
+    apt-get install -y /tmp/amazon-corretto-17.deb && \
+    rm /tmp/amazon-corretto-17.deb
 
 # Set JAVA_HOME and add Java to PATH
-ENV JAVA_HOME=/usr/lib/jvm/java-17
+ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Install Android SDK command line tools
