@@ -87,6 +87,8 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 # Clean up apt cache and lists to reduce image size
 RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
+ENV RUNTIME_ARCH=$TARGETARCH
+
 # Set entrypoint
 ENTRYPOINT ["/home/runner/start.sh"]
 
