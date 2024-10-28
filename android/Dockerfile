@@ -39,13 +39,14 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     dpkg -i /tmp/amazon-corretto-17.deb || apt-get install -f -y && \
     rm /tmp/amazon-corretto-17.deb
 
+# Verify JDK installation
+RUN ls -la /usr/lib/jvm/java-17-amazon-corretto
 
 # Set JAVA_HOME and add Java to PATH
 ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Set Android SDK installation paths in runner's home directory
-ENV TARGETARCH=$TARGETARCH
 ENV ANDROID_HOME=/home/runner/android-sdk
 ENV ANDROID_SDK_ROOT=$ANDROID_HOME
 ENV PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
@@ -58,12 +59,13 @@ RUN mkdir -p $ANDROID_HOME && \
     mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
 # Accept Android SDK licenses and install essential packages
-RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
+RUN export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto && \
+    export PATH="$JAVA_HOME/bin:$PATH" && \
+    yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools"
 
 # Install emulator and configure KVM only on amd64 architecture
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        # Install emulator
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "emulator" && \
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64"; \
     fi
