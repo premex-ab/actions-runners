@@ -75,10 +75,15 @@ RUN apt-get update && apt-get install -y \
     && apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 RUN chown -R runner:runner /home/runner/android-sdk
-RUN usermod -aG libvirt runner && usermod -aG kvm runner
 
-RUN newgrp kvm
-RUN chmod 660 /dev/kvm && \
-    ls -la /dev/kvm
+
+# Endast kör KVM-specifika kommandon om arkitekturen är amd64
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        usermod -aG libvirt runner && \
+        usermod -aG kvm runner && \
+        newgrp kvm && \
+        chmod 660 /dev/kvm && \
+        ls -la /dev/kvm; \
+    fi
 
 USER runner
