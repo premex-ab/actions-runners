@@ -39,11 +39,11 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     dpkg -i /tmp/amazon-corretto-17.deb || apt-get install -f -y && \
     rm /tmp/amazon-corretto-17.deb
 
-# Verify JDK installation
-RUN ls -la /usr/lib/jvm/java-17-amazon-corretto
+# Create a symbolic link for JAVA_HOME
+RUN ln -s /usr/lib/jvm/java-17-amazon-corretto /usr/lib/jvm/default-java
 
 # Set JAVA_HOME and add Java to PATH
-ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
+ENV JAVA_HOME=/usr/lib/jvm/default-java
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Set Android SDK installation paths in runner's home directory
@@ -59,8 +59,9 @@ RUN mkdir -p $ANDROID_HOME && \
     mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
 # Accept Android SDK licenses and install essential packages
-RUN export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto && \
+RUN export JAVA_HOME=/usr/lib/jvm/default-java && \
     export PATH="$JAVA_HOME/bin:$PATH" && \
+    java -version && \
     yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools"
 
