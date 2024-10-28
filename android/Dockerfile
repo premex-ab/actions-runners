@@ -35,19 +35,18 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     else \
         echo "Unsupported architecture: $TARGETARCH" && exit 1; \
     fi && \
-    dpkg -i /tmp/amazon-corretto-17.deb || apt-get install -f -y && \
+    apt-get install -y /tmp/amazon-corretto-17.deb && \
     rm /tmp/amazon-corretto-17.deb
 
-# Register Java with update-alternatives to ensure it's globally available
-RUN update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-amazon-corretto/bin/java 1 && \
-    update-alternatives --set java /usr/lib/jvm/java-17-amazon-corretto/bin/java
+# Create a symbolic link for JAVA_HOME
+RUN ln -s /usr/lib/jvm/java-17-amazon-corretto /usr/lib/jvm/default-java
+
+# Set JAVA_HOME and add Java to PATH
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Verify Java installation
 RUN java -version
-
-# Set JAVA_HOME and add Java to PATH
-ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
-ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Set Android SDK installation paths in runner's home directory
 ENV ANDROID_HOME=/home/runner/android-sdk
@@ -62,10 +61,7 @@ RUN mkdir -p $ANDROID_HOME && \
     mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
 # Accept Android SDK licenses and install essential packages
-RUN export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto && \
-    export PATH="$JAVA_HOME/bin:$PATH" && \
-    java -version && \
-    yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
+RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools"
 
 # Install emulator and configure KVM only on amd64 architecture
@@ -84,6 +80,9 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         echo '#!/bin/bash\nexec gosu runner "$@"' > /home/runner/start.sh && \
         chmod +x /home/runner/start.sh; \
     fi
+
+# Clean up apt cache and lists to reduce image size
+RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Set entrypoint
 ENTRYPOINT ["/home/runner/start.sh"]
