@@ -89,3 +89,5 @@ RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 ENV RUNTIME_ARCH=$TARGETARCH
 
+# Set default user to runner
+USER runner
