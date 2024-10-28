@@ -77,4 +77,8 @@ RUN apt-get update && apt-get install -y \
 RUN chown -R runner:runner /home/runner/android-sdk
 RUN usermod -aG libvirt runner && usermod -aG kvm runner
 
+RUN newgrp kvm
+RUN chmod 660 /dev/kvm && \
+    ls -la /dev/kvm
+
 USER runner
