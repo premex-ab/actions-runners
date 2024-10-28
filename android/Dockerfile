@@ -70,6 +70,9 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64"; \
     fi
 
+# Ensure runner has ownership of Android SDK directory
+RUN chown -R runner:runner /home/runner/android-sdk
+
 # Set permissions and create start script for KVM if on amd64
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         usermod -aG libvirt runner && \
