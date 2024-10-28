@@ -78,8 +78,9 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         usermod -aG libvirt runner && \
         usermod -aG kvm runner && \
         chown root:kvm /dev/kvm && \
-        chmod 660 /dev/kvm \
+        chmod 660 /dev/kvm; \
     fi
+
 
 # Clean up apt cache and lists to reduce image size
 RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
