@@ -36,8 +36,9 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     else \
         echo "Unsupported architecture: $TARGETARCH" && exit 1; \
     fi && \
-    apt-get install -y /tmp/amazon-corretto-17.deb && \
+    dpkg -i /tmp/amazon-corretto-17.deb || apt-get install -f -y && \
     rm /tmp/amazon-corretto-17.deb
+
 
 # Set JAVA_HOME and add Java to PATH
 ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
