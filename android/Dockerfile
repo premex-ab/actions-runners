@@ -19,8 +19,14 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 
 # Update package lists and install essential dependencies
 RUN apt-get update && \
-    apt-get install -y wget git-lfs unzip cpu-checker libx11-6 libx11-dev && \
+    apt-get install -y wget git-lfs unzip cpu-checker libx11-6 libx11-dev gosu && \
     git lfs install
+
+# Install KVM dependencies if on amd64
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        apt-get install -y libvirt-daemon-system libvirt-clients bridge-utils qemu-kvm; \
+    fi && \
+    apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Download and install Amazon Corretto 17 based on architecture
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
@@ -36,9 +42,6 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 # Set JAVA_HOME and add Java to PATH
 ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
 ENV PATH="$JAVA_HOME/bin:$PATH"
-
-# Switch to runner user and set installation paths
-USER runner
 
 # Set Android SDK installation paths in runner's home directory
 ENV TARGETARCH=$TARGETARCH
@@ -64,26 +67,19 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64"; \
     fi
 
-# Switch back to the root user to finalize configurations
-USER root
-
-RUN apt-get update && apt-get install -y \
-    libvirt-daemon-system \
-    libvirt-clients \
-    bridge-utils \
-    qemu-kvm \
-    && apt-get autoclean && rm -rf /var/lib/apt/lists/*
-
-RUN chown -R runner:runner /home/runner/android-sdk
-
-
-# Endast kör KVM-specifika kommandon om arkitekturen är amd64
+# Set permissions and create start script for KVM if on amd64
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         usermod -aG libvirt runner && \
         usermod -aG kvm runner && \
-        newgrp kvm && \
-        chmod 660 /dev/kvm && \
-        ls -la /dev/kvm; \
+        echo '#!/bin/bash\nchmod 660 /dev/kvm\nexec gosu runner "$@"' > /home/runner/start.sh && \
+        chmod +x /home/runner/start.sh; \
+    else \
+        echo '#!/bin/bash\nexec gosu runner "$@"' > /home/runner/start.sh && \
+        chmod +x /home/runner/start.sh; \
     fi
 
+# Set entrypoint
+ENTRYPOINT ["/home/runner/start.sh"]
+
+# Set default user to runner
 USER runner
