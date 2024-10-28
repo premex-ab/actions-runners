@@ -27,6 +27,8 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         apt-get install -y libvirt-daemon-system libvirt-clients bridge-utils qemu qemu-kvm; \
     fi
 
+
+
 # Download and install Amazon Corretto 17 based on architecture
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         wget https://corretto.aws/downloads/latest/amazon-corretto-17-x64-linux-jdk.deb -O /tmp/amazon-corretto-17.deb; \
@@ -77,13 +79,8 @@ RUN chown -R runner:runner /home/runner/android-sdk
 # Clean up apt cache and lists to reduce image size
 RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
-# Set permissions and create start script for KVM if on amd64
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        usermod -aG libvirt runner && \
-        usermod -aG kvm runner && \
-        chown root:kvm /dev/kvm && \
-        chmod 660 /dev/kvm; \
-    fi
+usermod -aG libvirt runner && \
+usermod -aG kvm runner && \
 
 ENV RUNTIME_ARCH=$TARGETARCH
 
