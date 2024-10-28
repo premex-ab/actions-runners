@@ -75,12 +75,11 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 # Ensure runner has ownership of Android SDK directory
 RUN chown -R runner:runner /home/runner/android-sdk
 
+RUN usermod -aG libvirt runner && usermod -aG kvm runner
+
 
 # Clean up apt cache and lists to reduce image size
 RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
-
-usermod -aG libvirt runner && \
-usermod -aG kvm runner && \
 
 ENV RUNTIME_ARCH=$TARGETARCH
 
