@@ -78,7 +78,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         usermod -aG libvirt runner && \
         usermod -aG kvm runner && \
         echo '#!/bin/bash\nchmod 660 /dev/kvm\nexec gosu runner "/home/runner/run.sh"' > /home/runner/customstart.sh && \
-        chmod +x /home/runner/start.sh; \
+        chmod +x /home/runner/customstart.sh; \
     else \
         echo '#!/bin/bash\nexec gosu runner "/home/runner/run.sh"' > /home/runner/customstart.sh && \
         chmod +x /home/runner/customstart.sh; \
