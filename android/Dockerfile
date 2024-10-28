@@ -24,7 +24,7 @@ RUN apt-get update && \
 
 # Install KVM dependencies if on amd64
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        apt-get install -y libvirt libvirt-daemon-system libvirt-clients bridge-utils qemu qemu-kvm; \
+        apt-get install -y libvirt-daemon-system libvirt-clients bridge-utils qemu qemu-kvm; \
     fi
 
 # Download and install Amazon Corretto 17 based on architecture
