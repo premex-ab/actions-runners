@@ -67,12 +67,6 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 # Switch back to the root user to finalize configurations
 USER root
 RUN chown -R runner:runner /home/runner/android-sdk
+RUN usermod -aG libvirt runner && usermod -aG kvm runner
 
-# Ensure the kvm group exists and add runner user to it for permissions
-RUN groupadd -f kvm && \
-    usermod -aG kvm runner
-
-# Set the entrypoint
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
+USER runner
