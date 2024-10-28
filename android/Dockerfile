@@ -67,16 +67,12 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 # Switch back to the root user to finalize configurations
 USER root
 
-# Uppdatera paketlistan och installera nödvändiga libvirt-komponenter
 RUN apt-get update && apt-get install -y \
     libvirt-daemon-system \
     libvirt-clients \
     bridge-utils \
     qemu-kvm \
-    virtinst \
     && apt-get autoclean && rm -rf /var/lib/apt/lists/*
-
-
 
 RUN chown -R runner:runner /home/runner/android-sdk
 RUN usermod -aG libvirt runner && usermod -aG kvm runner
