@@ -24,7 +24,7 @@ RUN apt-get update && \
 
 # Install KVM dependencies if on amd64
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        apt-get install -y libvirt-daemon-system libvirt-clients bridge-utils qemu-kvm; \
+        apt-get install -y libvirt libvirt-daemon-system libvirt-clients bridge-utils qemu-kvm; \
     fi
 
 # Download and install Amazon Corretto 17 based on architecture
@@ -73,6 +73,10 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 # Ensure runner has ownership of Android SDK directory
 RUN chown -R runner:runner /home/runner/android-sdk
 
+
+# Clean up apt cache and lists to reduce image size
+RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
+
 # Set permissions and create start script for KVM if on amd64
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         usermod -aG libvirt runner && \
@@ -80,10 +84,6 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         chown root:kvm /dev/kvm && \
         chmod 660 /dev/kvm; \
     fi
-
-
-# Clean up apt cache and lists to reduce image size
-RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 ENV RUNTIME_ARCH=$TARGETARCH
 
