@@ -92,5 +92,3 @@ ENV RUNTIME_ARCH=$TARGETARCH
 # Set entrypoint
 ENTRYPOINT ["/home/runner/start.sh"]
 
-# Set default user to runner
-USER runner
