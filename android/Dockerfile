@@ -77,10 +77,10 @@ RUN chown -R runner:runner /home/runner/android-sdk
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         usermod -aG libvirt runner && \
         usermod -aG kvm runner && \
-        echo '#!/bin/bash\nchmod 660 /dev/kvm\nexec gosu runner "$@"' > /home/runner/start.sh && \
+        echo '#!/bin/bash\nchmod 660 /dev/kvm\nexec gosu runner "/home/runner/run.sh"' > /home/runner/start.sh && \
         chmod +x /home/runner/start.sh; \
     else \
-        echo '#!/bin/bash\nexec gosu runner "$@"' > /home/runner/start.sh && \
+        echo '#!/bin/bash\nexec gosu runner "/home/runner/run.sh"' > /home/runner/start.sh && \
         chmod +x /home/runner/start.sh; \
     fi
 
@@ -92,3 +92,5 @@ ENV RUNTIME_ARCH=$TARGETARCH
 # Set entrypoint
 ENTRYPOINT ["/home/runner/start.sh"]
 
+# Set default user to runner
+USER runner
