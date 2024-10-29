@@ -63,11 +63,11 @@ RUN mkdir -p $ANDROID_HOME && \
 
 # Accept Android SDK licenses and install essential packages
 RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
-    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools"
+    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" && \
+    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "emulator" \
 
 # Install emulator and configure KVM only on amd64 architecture
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "emulator" && \
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis_playstore;x86_64"; \
     fi
 
