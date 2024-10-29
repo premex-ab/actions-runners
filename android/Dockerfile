@@ -56,15 +56,20 @@ ENV PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$P
 
 # Install Android SDK command line tools
 RUN mkdir -p $ANDROID_HOME && \
-    wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O $ANDROID_HOME/commandlinetools.zip && \
+    wget https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip -O $ANDROID_HOME/commandlinetools.zip && \
     unzip $ANDROID_HOME/commandlinetools.zip -d $ANDROID_HOME/cmdline-tools && \
     rm $ANDROID_HOME/commandlinetools.zip && \
     mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
 # Accept Android SDK licenses and install essential packages
-RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses && \
-    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" && \
-    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "emulator"
+RUN yes | sdkmanager  --sdk_root="${ANDROID_HOME}" --licenses && \
+    sdkmanager --sdk_root="${ANDROID_HOME}" "platform-tools"
+
+# Install emulator and configure KVM only on amd64 architecture
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        sdkmanager --sdk_root="${ANDROID_HOME}" "emulator"; \
+    fi
+
 
 # Ensure runner has ownership of Android SDK directory
 RUN chown -R runner:runner /home/runner/android-sdk
