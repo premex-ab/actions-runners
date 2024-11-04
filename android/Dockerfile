@@ -66,9 +66,24 @@ RUN yes | sdkmanager  --sdk_root="${ANDROID_HOME}" --licenses && \
     sdkmanager --sdk_root="${ANDROID_HOME}" "platform-tools"
 
 # Install emulator and configure KVM only on amd64 architecture
+# Install emulator and configure KVM only on amd64 architecture
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
         sdkmanager --sdk_root="${ANDROID_HOME}" "emulator"; \
+    else \
+        echo "Copying and installing ARM64 emulator from local zip file"; \
     fi
+
+# Copy the ARM64 emulator zip file into the container (only used on arm64)
+COPY sdk-repo-linux_aarch64-emulator-12600700.zip /tmp/emulator.zip
+COPY package.xml /tmp/package.xml
+
+# Extract the ARM64 emulator only if TARGETARCH is arm64
+RUN if [ "$TARGETARCH" != "amd64" ]; then \
+        unzip /tmp/emulator.zip -d $ANDROID_HOME && \
+        mv /tmp/package.xml $ANDROID_HOME/emulator/package.xml && \
+        rm /tmp/emulator.zip; \
+    fi
+
 
 
 # Ensure runner has ownership of Android SDK directory
