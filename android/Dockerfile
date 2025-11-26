@@ -65,23 +65,29 @@ RUN mkdir -p $ANDROID_HOME && \
 RUN yes | sdkmanager  --sdk_root="${ANDROID_HOME}" --licenses && \
     sdkmanager --sdk_root="${ANDROID_HOME}" "platform-tools"
 
-# Install emulator and configure KVM only on amd64 architecture
-# Install emulator and configure KVM only on amd64 architecture
+# Install emulator based on architecture
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        echo "Installing emulator via sdkmanager for amd64"; \
         sdkmanager --sdk_root="${ANDROID_HOME}" "emulator"; \
     else \
-        echo "Copying and installing ARM64 emulator from local zip file"; \
+        echo "Will install ARM64 emulator from local zip file"; \
     fi
 
 # Copy the ARM64 emulator zip file into the container (only used on arm64)
+# Note: These files will be copied regardless of architecture due to Docker limitation
+# but will only be extracted/used on arm64
 COPY sdk-repo-linux_aarch64-emulator-12600700.zip /tmp/emulator.zip
 COPY package.xml /tmp/package.xml
 
-# Extract the ARM64 emulator only if TARGETARCH is arm64
-RUN if [ "$TARGETARCH" != "amd64" ]; then \
+# Extract and install the ARM64 emulator only if TARGETARCH is arm64
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        echo "Extracting ARM64 emulator"; \
         unzip /tmp/emulator.zip -d $ANDROID_HOME && \
         mv /tmp/package.xml $ANDROID_HOME/emulator/package.xml && \
         rm /tmp/emulator.zip; \
+    else \
+        echo "Skipping ARM64 emulator extraction (not arm64)"; \
+        rm -f /tmp/emulator.zip /tmp/package.xml; \
     fi
 
 
