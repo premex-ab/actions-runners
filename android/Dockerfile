@@ -7,25 +7,34 @@ ARG TARGETARCH
 # Switch to root to install dependencies
 USER root
 
-# Configure APT sources and architectures based on TARGETARCH
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        dpkg --remove-architecture arm64 && \
-        rm -f /etc/apt/sources.list.d/ubuntu-arm64.list; \
-    else \
-        dpkg --add-architecture arm64 && \
-        echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports mantic main restricted" > /etc/apt/sources.list.d/ubuntu-arm64.list; \
-    fi && \
-    echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu mantic main restricted" > /etc/apt/sources.list.d/ubuntu-amd64.list
-
 # Update package lists and install essential dependencies
+# Note: We rely on the base image's existing apt sources
 RUN apt-get update && \
-    apt-get install -y wget git-lfs unzip cpu-checker libx11-6 libx11-dev gosu && \
-    git lfs install
+    apt-get install -y --no-install-recommends \
+        wget \
+        git-lfs \
+        unzip \
+        cpu-checker \
+        libx11-6 \
+        libx11-dev \
+        gosu && \
+    git lfs install && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install KVM dependencies if on amd64
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        apt-get install -y libvirt-daemon-system libvirt-clients bridge-utils qemu qemu-kvm && \
-        usermod -aG libvirt runner && usermod -aG kvm runner; \
+        apt-get update && \
+        apt-get install -y --no-install-recommends \
+            libvirt-daemon-system \
+            libvirt-clients \
+            bridge-utils \
+            qemu \
+            qemu-kvm && \
+        usermod -aG libvirt runner && \
+        usermod -aG kvm runner && \
+        apt-get clean && \
+        rm -rf /var/lib/apt/lists/*; \
     fi
 
 # Download and install Amazon Corretto 17 based on architecture
@@ -36,8 +45,11 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     else \
         echo "Unsupported architecture: $TARGETARCH" && exit 1; \
     fi && \
+    apt-get update && \
     apt-get install -y /tmp/amazon-corretto-17.deb && \
-    rm /tmp/amazon-corretto-17.deb
+    rm /tmp/amazon-corretto-17.deb && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create a symbolic link for JAVA_HOME
 RUN ln -s /usr/lib/jvm/java-17-amazon-corretto /usr/lib/jvm/default-java
@@ -105,7 +117,9 @@ RUN mkdir -p -m 755 /etc/apt/keyrings && \
     chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg && \
     echo "deb [arch=${TARGETARCH} signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
     apt-get update && \
-    apt-get install -y gh
+    apt-get install -y gh && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 
 
