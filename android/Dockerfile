@@ -29,7 +29,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
             libvirt-daemon-system \
             libvirt-clients \
             bridge-utils \
-            qemu \
+            qemu-system-x86 \
             qemu-kvm && \
         usermod -aG libvirt runner && \
         usermod -aG kvm runner && \
